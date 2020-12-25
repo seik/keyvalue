@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "key-value-bot"
+name = "keyvalue"
 version = "0.1.0"
 description = ""
 authors = ["seik <ivanmartinga@gmail.com>"]
@@ -9,6 +9,7 @@ license = "MIT"
 python = "^3.8"
 python-telegram-bot = "^13.1"
 loguru = "^0.5.3"
+pynamodb = "^4.3.3"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

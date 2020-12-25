@@ -1,4 +1,4 @@
-service: key-value-bot
+service: keyvalue
 
 package:
   exclude:
@@ -13,6 +13,12 @@ package:
     - package-lock.json
     - requirements.txt
 
+custom:
+  appAcronym: keyvalue 
+  dynamodbTable: keyvalue-${self:provider.stage}
+  dynamodbArn: arn:aws:dynamodb:${self:provider.region}:*:table/${self:custom.dynamodbTable}
+  dynamodbHost: https://dynamodb.${self:provider.region}.amazonaws.com
+
 provider:
   name: aws
   runtime: python3.8
@@ -20,6 +26,20 @@ provider:
   region: ${opt:region, 'eu-west-3'}
   environment:
     TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+    DYNAMODB_TABLE: ${self:custom.dynamodbTable}
+    DYNAMODB_HOST: ${self:custom.dynamodbHost}
+    REGION: ${self:provider.region
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeTable
+      Resource: ${self:custom.dynamodbArn}
 
 functions:
   bot:
@@ -34,3 +54,19 @@ custom:
   pythonRequirements:
     dockerizePip: true
     slim: false
+
+resources:
+  Resources:
+    keyvalueTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.dynamodbTable}
+        AttributeDefinitions:
+          - AttributeName: chat_id 
+            AttributeType: N
+        KeySchema:
+          - AttributeName: chat_id 
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

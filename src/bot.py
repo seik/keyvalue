@@ -2,11 +2,13 @@ import json
 import os
 
 from loguru import logger
-from telegram import (
-    Update,
-    Bot,
-)
-from telegram.ext import Dispatcher, CommandHandler
+from pynamodb import Model
+from pynamodb.attributes import NumberAttribute, UnicodeAttribute
+from telegram import Bot, Update
+from telegram.ext import CommandHandler, Dispatcher
+
+from src import actions
+from src.models import KeyValue
 
 OK_RESPONSE = {
     "statusCode": 200,
@@ -32,7 +34,7 @@ bot = configure_telegram()
 dispatcher = Dispatcher(bot, None, use_context=True)
 
 
-def handler(event, context) -> dict:
+def handler(event, context: dict) -> dict:
     logger.info(f"Event: {event}")
 
     try:
@@ -45,8 +47,52 @@ def handler(event, context) -> dict:
 
 
 def start(update: Update, context: dict) -> None:
-    text = "Hello world!"
-    bot.send_message(chat_id=update.effective_chat.id, text=text)
+    bot.send_message(chat_id=update.effective_chat.id, text="Biip boop, biip boop")
+
+
+def set_value(update: Update, context: dict):
+    key_value_text = update.message.text.replace("/set", "").strip()
+
+    reply_message = actions.set_value(
+        message_text=key_value_text,
+        chat_id=update.effective_chat.id,
+        user_id=update.effective_user.id,
+    )
+
+    bot.sendMessage(update.message.chat_id, text=reply_message)
+
+
+def get_value(update: Update, context: dict):
+    key_text = update.message.text.replace("/get", "").strip()
+
+    reply_message = actions.get_value(
+        message_text=key_text,
+        chat_id=update.effective_chat.id,
+        user_id=update.effective_user.id,
+    )
+
+    bot.sendMessage(update.message.chat_id, text=reply_message)
+
+
+def delete_value(update: Update, context: dict):
+    key_text = update.message.text.replace("/delete", "").strip()
+
+    reply_message = actions.delete_value(
+        message_text=key_text,
+        chat_id=update.effective_chat.id,
+        user_id=update.effective_user.id,
+    )
+
+    bot.sendMessage(update.message.chat_id, text=reply_message)
+
+
+def list_values(update: Update, context: dict):
+    reply_message = actions.get_list(chat_id=update.message.chat_id)
+
+    bot.sendMessage(update.effective_chat.id, text=reply_message)
 
 
 set_up_dispatcher(dispatcher)
+
+if not KeyValue.exists():
+    KeyValue.create_table(read_capacity_units=1, write_capacity_units=1, wait=True)
