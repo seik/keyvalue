@@ -10,32 +10,29 @@ def set_value(message_text: str, chat_id: str, user_id: str):
     if not value.strip():
         return "Value cannot be empty"
 
-    results = KeyValue.query(chat_id, KeyValue.subject == key)
-
-    if results:
-        obj = results[0]
-        obj.user_id = user_id
-        obj.key = key
-        obj.value = value
+    try:
+        obj = KeyValue.get(chat_id + key)
+        obj.user, obj.key, obj.value = user_id, key, value
         obj.save()
-    else:
-        obj = KeyValue(chat_id, user_id, key, value)
+    except KeyValue.DoesNotExist:
+        obj = KeyValue(chat_id + key, user=user_id, value=value)
         obj.save()
 
-    return f"Value {key} has been assigned"
+    return f"Value `{key}` has been assigned"
 
 
 def get_value(message_text: str, chat_id: str, user_id: str):
     key = message_text.strip()
 
     if not key:
-        return "Send a key to search"
+        return f"Send a key to search, ex: `/get key`"
 
-    results = KeyValue.query(chat_id, KeyValue.subject == key)
+    exists = KeyValue.count(chat_id + key)
 
-    if results:
-        return results[0].value
-    else:
+    try:
+        obj = KeyValue.get(chat_id + key)
+        return obj.value
+    except KeyValue.DoesNotExist:
         return "Key does not exists"
 
 
@@ -45,19 +42,18 @@ def delete_value(message_text: str, chat_id: str, user_id: str):
     if not key:
         return "Send a key to delete"
 
-    results = KeyValue.query(chat_id, KeyValue.subject == key)
-
-    if results:
-        results[0].delete()
-        return f"Key {key} has been deleted"
-    else:
+    try:
+        obj = KeyValue.get(chat_id + key)
+        obj.delete()
+        return f"Key `{key}` has been deleted"
+    except KeyValue.DoesNotExist:
         return "Key does not exist"
 
 
 def get_list(chat_id: str):
-    keyvalues = KeyValue.objects.filter(chat_id=chat_id).order_by("pk")
-
-    if keyvalues.exists():
-        return ", ".join(str(keyvalue.key) for keyvalue in keyvalues)
+    exists = KeyValue.scan(KeyValue.id.startswith(chat_id), limit=1)
+    if exists:
+        results = KeyValue.scan(KeyValue.id.startswith(chat_id))
+        return ", ".join(str(obj.id.replace(chat_id, "")) for obj in results)
     else:
         return "There are no objects"

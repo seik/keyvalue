@@ -1,13 +1,12 @@
 import os
 
-from pynamodb import Model
 from pynamodb.attributes import NumberAttribute, UnicodeAttribute
+from pynamodb.models import Model
 
 
 class KeyValue(Model):
-    chat_id = NumberAttribute(hash_key=True)
+    id = UnicodeAttribute(hash_key=True)
     user = UnicodeAttribute()
-    key = UnicodeAttribute()
     value = UnicodeAttribute()
 
     class Meta:

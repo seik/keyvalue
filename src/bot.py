@@ -2,8 +2,6 @@ import json
 import os
 
 from loguru import logger
-from pynamodb import Model
-from pynamodb.attributes import NumberAttribute, UnicodeAttribute
 from telegram import Bot, Update
 from telegram.ext import CommandHandler, Dispatcher
 
@@ -28,6 +26,10 @@ def configure_telegram():
 
 def set_up_dispatcher(dispatcher: Dispatcher) -> None:
     dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("set", set_value))
+    dispatcher.add_handler(CommandHandler("get", get_value))
+    dispatcher.add_handler(CommandHandler("delete", delete_value))
+    dispatcher.add_handler(CommandHandler("list", list_values))
 
 
 bot = configure_telegram()
@@ -55,11 +57,11 @@ def set_value(update: Update, context: dict):
 
     reply_message = actions.set_value(
         message_text=key_value_text,
-        chat_id=update.effective_chat.id,
-        user_id=update.effective_user.id,
+        chat_id=str(update.effective_chat.id),
+        user_id=str(update.effective_user.id),
     )
 
-    bot.sendMessage(update.message.chat_id, text=reply_message)
+    bot.sendMessage(update.message.chat_id, text=reply_message, parse_mode="MarkdownV2")
 
 
 def get_value(update: Update, context: dict):
@@ -67,11 +69,11 @@ def get_value(update: Update, context: dict):
 
     reply_message = actions.get_value(
         message_text=key_text,
-        chat_id=update.effective_chat.id,
-        user_id=update.effective_user.id,
+        chat_id=str(update.effective_chat.id),
+        user_id=str(update.effective_user.id),
     )
 
-    bot.sendMessage(update.message.chat_id, text=reply_message)
+    bot.sendMessage(update.message.chat_id, text=reply_message, parse_mode="MarkdownV2")
 
 
 def delete_value(update: Update, context: dict):
@@ -79,17 +81,19 @@ def delete_value(update: Update, context: dict):
 
     reply_message = actions.delete_value(
         message_text=key_text,
-        chat_id=update.effective_chat.id,
-        user_id=update.effective_user.id,
+        chat_id=str(update.effective_chat.id),
+        user_id=str(update.effective_user.id),
     )
 
-    bot.sendMessage(update.message.chat_id, text=reply_message)
+    bot.sendMessage(update.message.chat_id, text=reply_message, parse_mode="MarkdownV2")
 
 
 def list_values(update: Update, context: dict):
-    reply_message = actions.get_list(chat_id=update.message.chat_id)
+    reply_message = actions.get_list(chat_id=str(update.message.chat_id))
 
-    bot.sendMessage(update.effective_chat.id, text=reply_message)
+    bot.sendMessage(
+        update.effective_chat.id, text=reply_message, parse_mode="MarkdownV2"
+    )
 
 
 set_up_dispatcher(dispatcher)
