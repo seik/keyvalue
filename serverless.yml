@@ -1,0 +1,36 @@
+service: key-value-bot
+
+package:
+  exclude:
+    - node_modules/**
+    - .idea/**
+    - .vscode/**
+    - .env
+    - images/**
+    - README.md
+    - LICENSE
+    - package.json
+    - package-lock.json
+    - requirements.txt
+
+provider:
+  name: aws
+  runtime: python3.8
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'eu-west-3'}
+  environment:
+    TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
+
+functions:
+  bot:
+    handler: src.bot.handler
+    events:
+      - http: POST /
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    slim: false
