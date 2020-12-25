@@ -73,7 +73,7 @@ def get_value(update: Update, context: dict):
         user_id=str(update.effective_user.id),
     )
 
-    bot.sendMessage(update.message.chat_id, text=reply_message, parse_mode="MarkdownV2")
+    bot.sendMessage(update.message.chat_id, text=reply_message)
 
 
 def delete_value(update: Update, context: dict):

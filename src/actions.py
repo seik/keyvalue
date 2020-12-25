@@ -51,9 +51,8 @@ def delete_value(message_text: str, chat_id: str, user_id: str):
 
 
 def get_list(chat_id: str):
-    exists = KeyValue.scan(KeyValue.id.startswith(chat_id), limit=1)
-    if exists:
-        results = KeyValue.scan(KeyValue.id.startswith(chat_id))
+    results = list(KeyValue.scan(KeyValue.id.startswith(chat_id), limit=1))
+    if results:
         return ", ".join(str(obj.id.replace(chat_id, "")) for obj in results)
     else:
         return "There are no objects"
