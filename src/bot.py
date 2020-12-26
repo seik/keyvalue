@@ -91,9 +91,7 @@ def delete_value(update: Update, context: dict):
 def list_values(update: Update, context: dict):
     reply_message = actions.get_list(chat_id=str(update.message.chat_id))
 
-    bot.sendMessage(
-        update.effective_chat.id, text=reply_message, parse_mode="MarkdownV2"
-    )
+    bot.sendMessage(update.effective_chat.id, text=reply_message)
 
 
 set_up_dispatcher(dispatcher)
