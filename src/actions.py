@@ -10,12 +10,14 @@ def set_value(message_text: str, chat_id: str, user_id: str):
     if not value.strip():
         return "Value cannot be empty"
 
+    obj_id = f"{chat_id}{key}".lower()
+
     try:
-        obj = KeyValue.get(chat_id + key)
+        obj = KeyValue.get(obj_id)
         obj.user, obj.key, obj.value = user_id, key, value
         obj.save()
     except KeyValue.DoesNotExist:
-        obj = KeyValue(chat_id + key, user=user_id, value=value)
+        obj = KeyValue(obj_id, user=user_id, value=value)
         obj.save()
 
     return f"Value `{key}` has been assigned"
@@ -27,10 +29,12 @@ def get_value(message_text: str, chat_id: str, user_id: str):
     if not key:
         return f"Send a key to search, ex: `/get key`"
 
-    exists = KeyValue.count(chat_id + key)
+    obj_id = f"{chat_id}{key}".lower()
+
+    exists = KeyValue.count(obj_id)
 
     try:
-        obj = KeyValue.get(chat_id + key)
+        obj = KeyValue.get(obj_id)
         return obj.value
     except KeyValue.DoesNotExist:
         return "Key does not exists"
@@ -42,8 +46,10 @@ def delete_value(message_text: str, chat_id: str, user_id: str):
     if not key:
         return "Send a key to delete"
 
+    obj_id = f"{chat_id}{key}".lower()
+
     try:
-        obj = KeyValue.get(chat_id + key)
+        obj = KeyValue.get(obj_id)
         obj.delete()
         return f"Key `{key}` has been deleted"
     except KeyValue.DoesNotExist:
@@ -51,7 +57,8 @@ def delete_value(message_text: str, chat_id: str, user_id: str):
 
 
 def get_list(chat_id: str):
-    results = list(KeyValue.scan(KeyValue.id.startswith(chat_id), limit=1))
+    results = list(KeyValue.scan(KeyValue.id.startswith(chat_id.lower())))
+
     if results:
         return ", ".join(str(obj.id.replace(chat_id, "")) for obj in results)
     else:

@@ -53,7 +53,7 @@ def start(update: Update, context: dict) -> None:
 
 
 def set_value(update: Update, context: dict):
-    key_value_text = update.message.text.replace("/set", "").strip()
+    key_value_text = " ".join(update.effective_message.text.split()[1:])
 
     reply_message = actions.set_value(
         message_text=key_value_text,
@@ -65,7 +65,7 @@ def set_value(update: Update, context: dict):
 
 
 def get_value(update: Update, context: dict):
-    key_text = update.message.text.replace("/get", "").strip()
+    key_text = " ".join(update.effective_message.text.split()[1:])
 
     reply_message = actions.get_value(
         message_text=key_text,
@@ -77,7 +77,7 @@ def get_value(update: Update, context: dict):
 
 
 def delete_value(update: Update, context: dict):
-    key_text = update.message.text.replace("/delete", "").strip()
+    key_text = " ".join(update.effective_message.text.split()[1:])
 
     reply_message = actions.delete_value(
         message_text=key_text,
