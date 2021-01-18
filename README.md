@@ -1,4 +1,4 @@
 # keyvalue
 
-🔑 A telegram bot to store keypairs 
+🔑 A telegram bot which allows you to store values using a key value approach.
 
