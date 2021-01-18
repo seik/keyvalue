@@ -1,7 +1,9 @@
 import json
 import os
 
+import sentry_sdk
 from loguru import logger
+from sentry_sdk.integrations.serverless import serverless_function
 from telegram import Bot, Update
 from telegram.ext import CommandHandler, Dispatcher
 
@@ -13,6 +15,8 @@ OK_RESPONSE = {
     "body": json.dumps("ok"),
 }
 ERROR_RESPONSE = {"statusCode": 400, "body": json.dumps("Oops, something went wrong!")}
+
+sentry_sdk.init(dsn=os.environ.get("SENTRY_DSN_URL"))
 
 
 def configure_telegram():
@@ -36,6 +40,7 @@ bot = configure_telegram()
 dispatcher = Dispatcher(bot, None, use_context=True)
 
 
+@serverless_function
 def handler(event, context: dict) -> dict:
     logger.info(f"Event: {event}")
 
