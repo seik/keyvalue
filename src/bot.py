@@ -58,10 +58,21 @@ def start(update: Update, context: dict) -> None:
 
 
 def set_value(update: Update, context: dict):
-    key_value_text = " ".join(update.effective_message.text.split()[1:])
+    message_text = " ".join(update.effective_message.text.split()[1:])
+
+    # If reply to a message store that message text as value
+    if update.effective_message.reply_to_message and len(message_text.split()) > 1:
+        bot.sendMessage(
+            update.message.chat_id, text="When replying to a message send only a key"
+        )
+        return
+    elif update.effective_message.reply_to_message:
+        message_text = (
+            f"{message_text} {update.effective_message.reply_to_message.text}"
+        )
 
     reply_message = actions.set_value(
-        message_text=key_value_text,
+        message_text=message_text,
         chat_id=str(update.effective_chat.id),
         user_id=str(update.effective_user.id),
     )

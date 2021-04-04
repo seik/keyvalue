@@ -31,8 +31,6 @@ def get_value(message_text: str, chat_id: str, user_id: str):
 
     obj_id = f"{chat_id}{key}".lower()
 
-    exists = KeyValue.count(obj_id)
-
     try:
         obj = KeyValue.get(obj_id)
         return obj.value
