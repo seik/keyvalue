@@ -14,8 +14,7 @@ def set_value(message_text: str, chat_id: str, user_id: str):
 
     try:
         obj = KeyValue.get(obj_id)
-        obj.user, obj.key, obj.value = user_id, key, value
-        obj.save()
+        return f"Key `{key}` already exists, delete it first with `/delete {key}`"
     except KeyValue.DoesNotExist:
         obj = KeyValue(obj_id, user=user_id, value=value)
         obj.save()
