@@ -10,7 +10,7 @@ python = "^3.8"
 python-telegram-bot = "^13.1"
 loguru = "^0.5.3"
 pynamodb = "^4.3.3"
-sentry-sdk = "^0.19.5"
+sentry-sdk = "^1.14.0"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
